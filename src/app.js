@@ -20,14 +20,19 @@ const app=express();
 //         "occupation":"web tester"
 //     });
 // })
-app.use("/user/:userId",(req,res)=>{
-    console.log(req.params);
-    res.send({
-        "name":"praniyal thapa",
-       "occupation":"web tester"
-     
-    })
+
+app.use("/user",(req,res,next)=>{
+    console.log("First response");
+    //res.send("First response");
+    next();
+});
+app.use("/user",(req,res,next)=>{
+    console.log("Second response");
+    res.send("Second Response");
+    next();
 })
+
+
 
 app.listen(3000,()=>{
     console.log("Server is listening in port 3000...")
