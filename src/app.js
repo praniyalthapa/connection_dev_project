@@ -2,7 +2,7 @@ const express=require('express');
 const app=express();
 
 
-
+const {authAdmin,userAuth}=require('../middleware/auth');
 // app.use("/hello/praniyal",(req,res)=>{
 //     res.send("Hello praniyal you are into /praniyal api request");
 // })
@@ -20,17 +20,20 @@ const app=express();
 //         "occupation":"web tester"
 //     });
 // })
+app.use("/admin",authAdmin);
 
-app.use("/user",(req,res,next)=>{
-    console.log("First response");
-    //res.send("First response");
-    next();
-});
-app.use("/user",(req,res,next)=>{
-    console.log("Second response");
-    res.send("Second Response");
-    next();
+// app.use("/user",userAuth);
+app.get("/user/getAllData",userAuth,(req,res)=>{
+    res.send("See all the user authenticated data now");
 })
+
+
+
+
+
+
+
+
 
 
 
