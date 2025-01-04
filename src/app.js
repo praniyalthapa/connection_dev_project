@@ -3,30 +3,25 @@ const connectDB=require('./config/database');
 const app=express();
 const userModel=require('./model/user');
 //first connect db then connect or run the server
+app.use(express.json()); //using express middleware
 
 
-app.post("/signup",async (req,res)=>{
-    //create a new instace of a usermodel
-  const user=new userModel({
-    firstName:"Yubika",
-    lastName:"Thapa",
-    email:"yubkila100@gmail.com",
-    password:"yubika@123"
-  });
- try{
-    await user.save();
-    res.send("Data is added successfully");
- }
- catch(e){
-    res.status(400).send("Error to create a user"+e.message);
- }
+
+app.post("/signup",async(req,res)=>{
+//console.log(req.body);
+
+const user=new userModel(req.body);
+try{
+  user.save();
+  res.send("User created successfully into database");
+
+}
+catch(e){
+res.status(400).send("Not able to create database");
+}
+
+
 });
-
-
-
-
-
-
 
 
 
