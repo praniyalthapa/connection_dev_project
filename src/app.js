@@ -9,22 +9,32 @@ app.use(express.json()); //using express middleware
 
 app.post("/signup",async(req,res)=>{
 //console.log(req.body);
-
+//get all the data from the database
 const user=new userModel(req.body);
 try{
   user.save();
   res.send("User created successfully into database");
-
 }
 catch(e){
 res.status(400).send("Not able to create database");
 }
-
-
 });
 
 
+app.get("/feed",async (req,res)=>{
+  //const email=req.body.email;  //taking email from the req of postman
+  const emailId=req.body.email;
+  try{
+   const userEmail= await userModel.find({email:emailId});
+   res.send(userEmail);  
+ }
+  catch(e){
+   res.status(400).send("We can't find the email from the request");
+  }
+});
 
+
+//first connect db then connect or run the server
 connectDB().then(()=>{
     console.log("Database connected successfully");
     app.listen(3000,()=>{
