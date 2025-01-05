@@ -25,14 +25,29 @@ app.get("/feed",async (req,res)=>{
   //const email=req.body.email;  //taking email from the req of postman
   const emailId=req.body.email;
   try{
-   const userEmail= await userModel.find({email:emailId});
+   const userEmail= await userModel.findOne({email:emailId}); //find() finds all and findOne finds only one 
+    if(userEmail==0){
+  res.status(404).send("User data not found! Please enter a valid user email");
+  }
+   else{
    res.send(userEmail);  
+   }
  }
   catch(e){
    res.status(400).send("We can't find the email from the request");
   }
 });
+//fetcg all the data from database
+app.get("/getAll",async (req,res)=>{
+  try{
+    const getusers= await userModel.find({});
+  res.send(getusers);
+  }
+  catch(e){
+    res.status(400).send("No any users were found from the database");
+  }
 
+})
 
 //first connect db then connect or run the server
 connectDB().then(()=>{
