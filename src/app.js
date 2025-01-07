@@ -12,7 +12,7 @@ app.post("/signup",async(req,res)=>{
 //get all the data from the database
 const user=new userModel(req.body);
 try{
-  user.save();
+  await user.save();
   res.send("User created successfully into database");
 }
 catch(e){
@@ -21,33 +21,65 @@ res.status(400).send("Not able to create database");
 });
 
 
-app.get("/feed",async (req,res)=>{
+app.get("/user",async (req,res)=>{
   //const email=req.body.email;  //taking email from the req of postman
   const emailId=req.body.email;
   try{
    const userEmail= await userModel.findOne({email:emailId}); //find() finds all and findOne finds only one 
-    if(userEmail==0){
-  res.status(404).send("User data not found! Please enter a valid user email");
+  if(!userEmail){
+    res.status(400).send("No any user in the database");
   }
-   else{
-   res.send(userEmail);  
-   }
- }
+  else{
+    res.send(userEmail);
+  }
+//     if(userEmail==0){
+//   res.status(404).send("User data not found! Please enter a valid user email");
+//   }
+//    else{
+//    res.send(userEmail);  
+//    }
+  }
   catch(e){
    res.status(400).send("We can't find the email from the request");
   }
 });
-//fetcg all the data from database
-app.get("/getAll",async (req,res)=>{
+
+//api for finding by id and delete it 
+app.delete("/user",async(req,res)=>{
+  const userId=req.body.userId;
+  console.log("DELETED ID IS ",userId);
   try{
-    const getusers= await userModel.find({});
-  res.send(getusers);
+    // const user=await userModel.findByIdAndDelete({_id:userId});
+      const user=await userModel.findByIdAndDelete(userId);
+      res.send("User deleted successfully");
   }
   catch(e){
-    res.status(400).send("No any users were found from the database");
+    res.status(404).send("Something went wrong!!");
   }
-
 })
+
+
+
+
+//fetcg all the data from database
+app.get("/feed",async(req,res)=>{
+  try{
+    
+    const getingAll=await userModel.find({});
+    if(!getingAll){
+      res.status(404).send("Database is empty");
+    }
+    else{
+     res.send(getingAll);
+    }
+    
+  }
+  catch(e){
+    res.status(404).send("OOPS! Users from the database are not found!!");
+  }
+})
+app.delete("/user")
+
 
 //first connect db then connect or run the server
 connectDB().then(()=>{
