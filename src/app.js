@@ -21,6 +21,7 @@ res.status(400).send("Not able to create database");
 });
 
 
+
 app.get("/user",async (req,res)=>{
   //const email=req.body.email;  //taking email from the req of postman
   const emailId=req.body.email;
@@ -44,10 +45,11 @@ app.get("/user",async (req,res)=>{
   }
 });
 
+
 //api for finding by id and delete it 
 app.delete("/user",async(req,res)=>{
   const userId=req.body.userId;
-  console.log("DELETED ID IS ",userId);
+  
   try{
     // const user=await userModel.findByIdAndDelete({_id:userId});
       const user=await userModel.findByIdAndDelete(userId);
@@ -56,8 +58,23 @@ app.delete("/user",async(req,res)=>{
   catch(e){
     res.status(404).send("Something went wrong!!");
   }
-})
+});
 
+//update the data of the user
+app.patch("/user",async(req,res)=>{
+  const userId=req.body.userId;
+  console.log("userId=",userId);
+  const data=req.body;
+  try{
+    await userModel.findByIdAndUpdate({_id:userId},data);
+
+res.send("User updated successfully hurray!!!");
+  
+  }
+  catch(e){
+    res.status(404).send("Something went wrong!!");
+  }
+})
 
 
 
