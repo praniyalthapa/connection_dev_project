@@ -3,7 +3,7 @@ const userSchema=new mongoose.Schema({
     firstName:{
         type: String,
         required:true,
-        minLength:7,
+        minLength:4,
         maxLength:50
     },
     lastName:{
@@ -14,7 +14,7 @@ const userSchema=new mongoose.Schema({
         required:true,
         unique:true,
         trim:true,
-        lowercase:true,
+        lowercase:true
         
     },
     password:{
@@ -28,10 +28,10 @@ const userSchema=new mongoose.Schema({
     },
     gender:{
         type: String,
-        lowercase:true,
+      
         //adding custom validation function
         validate(value){
-            if(!["male","female","other"]){
+            if(!["male","female","other"].includes(value)){
                 throw new Error("Gender is not valid");
             }
         },
@@ -49,6 +49,8 @@ const userSchema=new mongoose.Schema({
         type:[String],
 
     }
+},{
+    timestamps:true
 })
 //create a model
 const userModel=mongoose.model("User",userSchema);
