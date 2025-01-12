@@ -65,6 +65,7 @@ app.patch("/user",async(req,res)=>{
   const userId=req.body.userId;
   console.log("userId=",userId);
   const data=req.body;
+  console.log(data);
   try{
     await userModel.findByIdAndUpdate({_id:userId},data);
 
@@ -95,7 +96,7 @@ app.get("/feed",async(req,res)=>{
     res.status(404).send("OOPS! Users from the database are not found!!");
   }
 })
-app.delete("/user")
+app.delete("/user");
 
 
 //first connect db then connect or run the server
