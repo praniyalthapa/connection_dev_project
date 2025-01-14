@@ -21,7 +21,6 @@ res.status(400).send("Not able to create database");
 });
 
 
-
 app.get("/user",async (req,res)=>{
   //const email=req.body.email;  //taking email from the req of postman
   const emailId=req.body.email;
@@ -61,16 +60,36 @@ app.delete("/user",async(req,res)=>{
 });
 
 //update the data of the user
-app.patch("/user",async(req,res)=>{
-  const userId=req.body.userId;
+app.patch("/user/:userId",async(req,res)=>{
+  const userId=req.params?.userId;
   console.log("userId=",userId);
   const data=req.body;
   console.log(data);
+
   try{
-    await userModel.findByIdAndUpdate({_id:userId},data,{
+
+    const AllowedUpdates = [
+     "firstName", "lastName", "age", "gender","skills","about","photoUrl"
+    ];
+    // Check if all keys in 'data' are allowed
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+       AllowedUpdates.includes(k)
+  
+    );
+  
+    if (!isUpdateAllowed) {
+      throw new Error("Not able to update please check it");
+    }
+    if(data?.skills.length > 10){
+      throw new Error("Skills cannot exceed more than 10");
+    }
+    
+    
+    const user= await userModel.findByIdAndUpdate({_id:userId},data,{
       returnDocument:"after",
-      runValidators:true,
+      runValidators:true, //this for making changes for existing user+new user both
     })
+    console.log(user);
 res.send("User updated successfully hurray!!!");
   
   }
@@ -81,7 +100,7 @@ res.send("User updated successfully hurray!!!");
 
 
 
-//fetcg all the data from database
+//fetch all the data from database
 app.get("/feed",async(req,res)=>{
   try{
     
