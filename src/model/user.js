@@ -1,4 +1,5 @@
 const mongoose=require('mongoose');
+const validator = require('validator');
 const userSchema=new mongoose.Schema({
     firstName:{
         type: String,
@@ -14,12 +15,22 @@ const userSchema=new mongoose.Schema({
         required:true,
         unique:true,
         trim:true,
-        lowercase:true
+        lowercase:true,
+        validate(value){
+          if(!validator.isEmail(value))
+            throw new Error("Invalid email input");
+        }
         
     },
     password:{
         type: String,
-        required:true
+        required:true,
+        validator(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("Password must be strong"+value);
+            }
+               
+        },
     },
     age:{
         type: Number,
@@ -39,7 +50,13 @@ const userSchema=new mongoose.Schema({
 
     photoUrl:{
         type:String,
-        default:"https://www.cgg.gov.in/wp-content/uploads/2017/10/dummy-profile-pic-male1-300x300.jpg"
+        default:"https://www.cgg.gov.in/wp-content/uploads/2017/10/dummy-profile-pic-male1-300x300.jpg",
+        validate(value){
+            if(!validator.isURL(value)){
+             throw new Error("This is not a valid url");
+            }
+        }
+
     },
     about:{
         type:String,

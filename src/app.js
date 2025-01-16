@@ -16,7 +16,7 @@ try{
   res.send("User created successfully into database");
 }
 catch(e){
-res.status(400).send("Not able to create database");
+res.status(400).send("Not able to create database"+e.message);
 }
 });
 
