@@ -2,6 +2,8 @@ const express=require('express');
 const connectDB=require('./config/database');
 const app=express();
 const userModel=require('./model/user');
+const {validateSignUpData}=require('./utils/validation');
+const bcrypt = require('bcrypt');
 //first connect db then connect or run the server
 app.use(express.json()); //using express middleware
 
@@ -10,13 +12,50 @@ app.use(express.json()); //using express middleware
 app.post("/signup",async(req,res)=>{
 //console.log(req.body);
 //get all the data from the database
-const user=new userModel(req.body);
+
 try{
+  //validation for data
+
+  validateSignUpData(req);
+
+//hash the password
+const {password,firstName,lastName,email}=req.body;
+const hashedPassword=await bcrypt.hash(password,10);
+console.log(hashedPassword);
+
+
+
+
+
+
+
+
+
+
+//create a new instance of user model
+//const user=new userModel(req.body); //it is a way what should be included in database when signing up 
+const user=new userModel({
+  firstName,
+  lastName,
+  email,
+  password: hashedPassword,
+});
+
+
+
+
+
+
+//validate the user data
+
+
+
+
   await user.save();
   res.send("User created successfully into database");
 }
 catch(e){
-res.status(400).send("Not able to create database"+e.message);
+res.status(400).send("ERROR:"+e.message);
 }
 });
 
