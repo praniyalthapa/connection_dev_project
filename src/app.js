@@ -98,15 +98,15 @@ app.delete("/user",async(req,res)=>{
   }
 });
 
+//updating the data of user from the database;
+
 //update the data of the user
 app.patch("/user/:userId",async(req,res)=>{
   const userId=req.params?.userId;
   console.log("userId=",userId);
   const data=req.body;
   console.log(data);
-
   try{
-
     const AllowedUpdates = [
      "firstName", "lastName", "age", "gender","skills","about","photoUrl"
     ];
@@ -115,19 +115,16 @@ app.patch("/user/:userId",async(req,res)=>{
        AllowedUpdates.includes(k)
   
     );
-  
     if (!isUpdateAllowed) {
       throw new Error("Not able to update please check it");
     }
-    if(data?.skills.length > 10){
-      throw new Error("Skills cannot exceed more than 10");
-    }
-    
-    
+    // if(data?.skills.length > 10){
+    //   throw new Error("Skills cannot exceed more than 10");
+    // }
     const user= await userModel.findByIdAndUpdate({_id:userId},data,{
       returnDocument:"after",
       runValidators:true, //this for making changes for existing user+new user both
-    })
+    });
     console.log(user);
 res.send("User updated successfully hurray!!!");
   
@@ -135,8 +132,7 @@ res.send("User updated successfully hurray!!!");
   catch(e){
     res.status(404).send("Something went wrong!!"+e.message);
   }
-})
-
+});
 
 
 //fetch all the data from database
@@ -155,8 +151,12 @@ app.get("/feed",async(req,res)=>{
   catch(e){
     res.status(404).send("OOPS! Users from the database are not found!!");
   }
-})
-app.delete("/user");
+});
+
+
+
+
+
 
 
 //first connect db then connect or run the server
