@@ -60,6 +60,31 @@ res.status(400).send("ERROR:"+e.message);
 });
 
 
+//login api
+
+app.post("/login",async(req,res)=>{
+  try{
+  const {email,password}=req.body;
+  //checks the email is valid or not
+  const user=await userModel.findOne({email:email}); //if it is valid then we get user object otherwise null
+  console.log(user);
+  if(!user){
+    throw new Error("Invalid Credentials!!");
+  }
+ const isPasswordValid=await bcrypt.compare(password,user.password);
+ if(isPasswordValid){
+  res.send("Hurray!!User login successfull!!")
+ }
+ else{
+  throw new Error("Invalid Credentials!!");
+ }
+  }
+  catch(e){
+    res.status(400).send("Not able to login try again!!");
+  }
+});
+
+
 app.get("/user",async (req,res)=>{
   //const email=req.body.email;  //taking email from the req of postman
   const emailId=req.body.email;
