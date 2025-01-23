@@ -4,9 +4,10 @@ const app=express();
 const userModel=require('./model/user');
 const {validateSignUpData}=require('./utils/validation');
 const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
 //first connect db then connect or run the server
 app.use(express.json()); //using express middleware
-
+app.use(cookieParser());
 
 
 app.post("/signup",async(req,res)=>{
@@ -73,6 +74,9 @@ app.post("/login",async(req,res)=>{
   }
  const isPasswordValid=await bcrypt.compare(password,user.password);
  if(isPasswordValid){
+  //generate jwt token now
+res.cookie("token","vjfohjfoihdfbiofhbofbgbhgohbfo");
+
   res.send("Hurray!!User login successfull!!")
  }
  else{
@@ -82,6 +86,12 @@ app.post("/login",async(req,res)=>{
   catch(e){
     res.status(400).send("Not able to login try again!!");
   }
+});
+
+app.get("/profile",async(req,res)=>{
+  const cookies=req.cookies;
+  console.log(cookies);
+  res.send("Cookies reading");
 });
 
 
@@ -148,7 +158,7 @@ app.patch("/user/:userId",async(req,res)=>{
     // }
     const user= await userModel.findByIdAndUpdate({_id:userId},data,{
       returnDocument:"after",
-      runValidators:true, //this for making changes for existing user+new user both
+      runValidators:true, //this for making changes for existing user+new user both 
     });
     console.log(user);
 res.send("User updated successfully hurray!!!");
@@ -158,6 +168,7 @@ res.send("User updated successfully hurray!!!");
     res.status(404).send("Something went wrong!!"+e.message);
   }
 });
+
 
 
 //fetch all the data from database
