@@ -97,6 +97,14 @@ res.cookie("token",token); //sending token back to the user res.cookie("token","
 
 app.get("/profile",async(req,res)=>{
   const cookies=req.cookies;
+  //verify the jwt token 
+  const {token}=cookies;
+  const isTokenValid=await jwt.verify(token,"personalProject123##"); //it gets decdoded payload from jwt
+  //console.log(isTokenValid);
+  const {_id}=isTokenValid;
+  console.log("Logged in users is:"+_id);
+
+
   console.log(cookies);
   res.send("Cookies reading");
 });
