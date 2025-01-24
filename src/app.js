@@ -5,6 +5,7 @@ const userModel=require('./model/user');
 const {validateSignUpData}=require('./utils/validation');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const jwt=require('jsonwebtoken');
 //first connect db then connect or run the server
 app.use(express.json()); //using express middleware
 app.use(cookieParser());
@@ -75,7 +76,13 @@ app.post("/login",async(req,res)=>{
  const isPasswordValid=await bcrypt.compare(password,user.password);
  if(isPasswordValid){
   //generate jwt token now
-res.cookie("token","vjfohjfoihdfbiofhbofbgbhgohbfo");
+const token=await jwt.sign({_id:user._id},"personalProject123##");
+console.log(token);
+
+
+
+
+res.cookie("token",token); //sending token back to the user res.cookie("token","jfojfohdfofvhfbhfb");
 
   res.send("Hurray!!User login successfull!!")
  }
