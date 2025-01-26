@@ -6,9 +6,10 @@ const {validateSignUpData}=require('./utils/validation');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt=require('jsonwebtoken');
+const {userAuth}=require('./middleware/auth')
 //first connect db then connect or run the server
 app.use(express.json()); //using express middleware
-app.use(cookieParser());
+app.use(cookieParser()); //to view cookie we use this middleware
 
 
 app.post("/signup",async(req,res)=>{
@@ -66,64 +67,52 @@ res.status(400).send("ERROR:"+e.message);
 
 app.post("/login",async(req,res)=>{
   try{
-  const {email,password}=req.body;
-  //checks the email is valid or not
-  const user=await userModel.findOne({email:email}); //if it is valid then we get user object otherwise null
-  console.log(user);
-  if(!user){
-    throw new Error("Invalid Credentials!!");
-  }
- const isPasswordValid=await bcrypt.compare(password,user.password);
- if(isPasswordValid){
-  //generate jwt token now
-const token=await jwt.sign({_id:user._id},"personalProject123##");
-console.log(token);
-
-
-
-
-res.cookie("token",token); //sending token back to the user res.cookie("token","jfojfohdfofvhfbhfb");
-
-  res.send("Hurray!!User login successfull!!")
- }
- else{
-  throw new Error("Invalid Credentials!!");
- }
-  }
-  catch(e){
-    res.status(400).send("Not able to login try again!!");
-  }
-});
-
-app.get("/profile",async(req,res)=>{
-  try{
- const cookies=req.cookies;
-//  console.log(cookies);
- const {token}=cookies;
-  console.log(token);
-  if(!token){
-    throw new Error("Invalid token");
-  }
-const isTokenValid=await jwt.verify(token,"personalProject123##");
-console.log(isTokenValid);
-const { _id}=isTokenValid;
-
-console.log("UserId is validated"+_id);
-const user=await userModel.findById(_id);
+//validate email and password is present or not
+const {email,password}=req.body;
+const user=await userModel.findOne({email:email});
+console.log(user);
 if(!user){
-  throw new Error("User must logged in properly");
+  throw new Error("Invalid credentials");
 }
-res.send(user);
+const isPassordValid=await bcrypt.compare(password,user.password);
+console.log(isPassordValid);
+if(isPassordValid){
+ //create a jwt token
+ const token=jwt.sign({_id:user._id},"personalProject123##");
+ //send back to user
+ res.cookie("token",token);
+ console.log(token);
+ res.send("User logged in sucessfully!!");
+}
+else{
+  throw new Error("Invalid Credentials!!");
+}
   }
   catch(e){
-    res.send("Error occured.Can't validate the user");
+    res.status(400).send("ERR"+e.message);
   }
+})
 
 
+//api to view profile
 
-
-
+app.get("/profile",userAuth,async(req,res)=>{
+  try{
+    const user=req.user;
+    res.send(user);
+  }
+  catch(e){
+    res.status(400).send("Invalid user"+e.message);
+  }
 });
+
+
+app.post("/sendConnectionRequest",userAuth,async(req,res)=>{ //this middleware first checks if we logged in (token is valid then only this works);
+  console.log("connection req sending");
+  
+  res.send(req.user.firstName + "Send the connection request");
+});
+
 
 
 app.get("/user",async (req,res)=>{
@@ -150,76 +139,43 @@ app.get("/user",async (req,res)=>{
 });
 
 
-//api for finding by id and delete it 
-app.delete("/user",async(req,res)=>{
-  const userId=req.body.userId;
-  
-  try{
-    // const user=await userModel.findByIdAndDelete({_id:userId});
-      const user=await userModel.findByIdAndDelete(userId);
-      res.send("User deleted successfully");
-  }
-  catch(e){
-    res.status(404).send("Something went wrong!!");
-  }
-});
+
 
 //updating the data of user from the database;
 
-//update the data of the user
-app.patch("/user/:userId",async(req,res)=>{
-  const userId=req.params?.userId;
-  console.log("userId=",userId);
-  const data=req.body;
-  console.log(data);
-  try{
-    const AllowedUpdates = [
-     "firstName", "lastName", "age", "gender","skills","about","photoUrl"
-    ];
-    // Check if all keys in 'data' are allowed
-    const isUpdateAllowed = Object.keys(data).every((k) =>
-       AllowedUpdates.includes(k)
+// //update the data of the user
+// app.patch("/user/:userId",async(req,res)=>{
+//   const userId=req.params?.userId;
+//   console.log("userId=",userId);
+//   const data=req.body;
+//   console.log(data);
+//   try{
+//     const AllowedUpdates = [
+//      "firstName", "lastName", "age", "gender","skills","about","photoUrl"
+//     ];
+//     // Check if all keys in 'data' are allowed
+//     const isUpdateAllowed = Object.keys(data).every((k) =>
+//        AllowedUpdates.includes(k)
   
-    );
-    if (!isUpdateAllowed) {
-      throw new Error("Not able to update please check it");
-    }
-    // if(data?.skills.length > 10){
-    //   throw new Error("Skills cannot exceed more than 10");
-    // }
-    const user= await userModel.findByIdAndUpdate({_id:userId},data,{
-      returnDocument:"after",
-      runValidators:true, //this for making changes for existing user+new user both 
-    });
-    console.log(user);
-res.send("User updated successfully hurray!!!");
+//     );
+//     if (!isUpdateAllowed) {
+//       throw new Error("Not able to update please check it");
+//     }
+//     // if(data?.skills.length > 10){
+//     //   throw new Error("Skills cannot exceed more than 10");
+//     // }
+//     const user= await userModel.findByIdAndUpdate({_id:userId},data,{
+//       returnDocument:"after",
+//       runValidators:true, //this for making changes for existing user+new user both 
+//     });
+//     console.log(user);
+// res.send("User updated successfully hurray!!!");
   
-  }
-  catch(e){
-    res.status(404).send("Something went wrong!!"+e.message);
-  }
-});
-
-
-
-//fetch all the data from database
-app.get("/feed",async(req,res)=>{
-  try{
-    
-    const getingAll=await userModel.find({});
-    if(!getingAll){
-      res.status(404).send("Database is empty");
-    }
-    else{
-     res.send(getingAll);
-    }
-    
-  }
-  catch(e){
-    res.status(404).send("OOPS! Users from the database are not found!!");
-  }
-});
-
+//   }
+//   catch(e){
+//     res.status(404).send("Something went wrong!!"+e.message);
+//   }
+// });
 
 
 
