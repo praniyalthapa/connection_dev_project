@@ -78,9 +78,9 @@ const isPassordValid=await bcrypt.compare(password,user.password);
 console.log(isPassordValid);
 if(isPassordValid){
  //create a jwt token
- const token=jwt.sign({_id:user._id},"personalProject123##");
+ const token=jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"1d"});
  //send back to user
- res.cookie("token",token);
+ res.cookie("token",token,{httpOnly:true});
  console.log(token);
  res.send("User logged in sucessfully!!");
 }
