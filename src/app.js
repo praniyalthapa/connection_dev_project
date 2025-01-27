@@ -80,7 +80,7 @@ if(isPassordValid){
  //create a jwt token
  const token=jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"1d"});
  //send back to user
- res.cookie("token",token,{httpOnly:true});
+ res.cookie("token",token,{expires: new Date(Date.now() + 24 * 60 * 60 * 1000), httpOnly: true });
  console.log(token);
  res.send("User logged in sucessfully!!");
 }
