@@ -1,5 +1,6 @@
 const mongoose=require('mongoose');
 const validator = require('validator');
+const bcrypt=require('bcrypt');
 const userSchema=new mongoose.Schema({
     firstName:{
         type: String,
@@ -47,7 +48,6 @@ const userSchema=new mongoose.Schema({
             }
         },
     },
-
     photoUrl:{
         type:String,
         default:"https://www.cgg.gov.in/wp-content/uploads/2017/10/dummy-profile-pic-male1-300x300.jpg",
@@ -56,7 +56,6 @@ const userSchema=new mongoose.Schema({
              throw new Error("This is not a valid url");
             }
         }
-
     },
     about:{
         type:String,
@@ -69,7 +68,27 @@ const userSchema=new mongoose.Schema({
     }
 },{
     timestamps:true
-})
+});
+
+
+
+userSchema.methods.getJWT=async function() {
+    const user=this;
+    const token=await jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"7d"});
+    return token;
+};
+
+
+userSchema.methods.validatePassword=async function(passwordInputByUser){
+    const user=this;
+    const passwordHash=user.password;
+    const isPassordValid=await bcrypt.compare(passwordInputByUser,passwordHash);
+    return isPassordValid;
+}
+
+
+
+
 //create a model
 const userModel=mongoose.model("User",userSchema);
 module.exports=userModel;

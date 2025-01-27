@@ -62,23 +62,24 @@ res.status(400).send("ERROR:"+e.message);
 }
 });
 
-
 //login api
-
 app.post("/login",async(req,res)=>{
   try{
 //validate email and password is present or not
 const {email,password}=req.body;
 const user=await userModel.findOne({email:email});
+
 console.log(user);
 if(!user){
   throw new Error("Invalid credentials");
 }
-const isPassordValid=await bcrypt.compare(password,user.password);
+//const isPassordValid=await bcrypt.compare(password,user.password);
+const isPassordValid=await user.validatePassword(password);
 console.log(isPassordValid);
 if(isPassordValid){
- //create a jwt token
- const token=jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"1d"});
+ //provide a jwt token to the user
+ // const token=jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"1d"});
+ const token=await user.getJWT();
  //send back to user
  res.cookie("token",token,{expires: new Date(Date.now() + 24 * 60 * 60 * 1000), httpOnly: true });
  console.log(token);
@@ -91,11 +92,10 @@ else{
   catch(e){
     res.status(400).send("ERR"+e.message);
   }
-})
+});
 
 
 //api to view profile
-
 app.get("/profile",userAuth,async(req,res)=>{
   try{
     const user=req.user;
@@ -106,12 +106,12 @@ app.get("/profile",userAuth,async(req,res)=>{
   }
 });
 
-
 app.post("/sendConnectionRequest",userAuth,async(req,res)=>{ //this middleware first checks if we logged in (token is valid then only this works);
   console.log("connection req sending");
   
   res.send(req.user.firstName + "Send the connection request");
 });
+
 
 
 
