@@ -1,4 +1,4 @@
-const validator=require('validator');
+const validator=require('validator'); //thsi is npm library
 
 const validateSignUpData=(req)=>{
     const {firstName,lastName,email,password}=req.body;
