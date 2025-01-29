@@ -10,6 +10,9 @@ const authRouter=require('./routes/auth');
 const profileRouter=require('./routes/profile');
 const requestRouter=require('./routes/request');
 
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
 
 // //login api
 // app.post("/login",async(req,res)=>{
@@ -53,28 +56,28 @@ const requestRouter=require('./routes/request');
 // });
 
 
-app.get("/user",async (req,res)=>{
-  //const email=req.body.email;  //taking email from the req of postman
-  const emailId=req.body.email;
-  try{
-   const userEmail= await userModel.findOne({email:emailId}); //find() finds all and findOne finds only one 
-  if(!userEmail){
-    res.status(400).send("No any user in the database");
-  }
-  else{
-    res.send(userEmail);
-  }
-//     if(userEmail==0){
-//   res.status(404).send("User data not found! Please enter a valid user email");
+// app.get("/user",async (req,res)=>{
+//   //const email=req.body.email;  //taking email from the req of postman
+//   const emailId=req.body.email;
+//   try{
+//    const userEmail= await userModel.findOne({email:emailId}); //find() finds all and findOne finds only one 
+//   if(!userEmail){
+//     res.status(400).send("No any user in the database");
 //   }
-//    else{
-//    res.send(userEmail);  
-//    }
-  }
-  catch(e){
-   res.status(400).send("We can't find the email from the request");
-  }
-});
+//   else{
+//     res.send(userEmail);
+//   }
+// //     if(userEmail==0){
+// //   res.status(404).send("User data not found! Please enter a valid user email");
+// //   }
+// //    else{
+// //    res.send(userEmail);  
+// //    }
+//   }
+//   catch(e){
+//    res.status(400).send("We can't find the email from the request");
+//   }
+// });
 
 
 
