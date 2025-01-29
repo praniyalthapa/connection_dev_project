@@ -2,117 +2,55 @@ const express=require('express');
 const connectDB=require('./config/database');
 const app=express();
 const userModel=require('./model/user');
-const {validateSignUpData}=require('./utils/validation');
-const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
-const jwt=require('jsonwebtoken');
-const {userAuth}=require('./middleware/auth')
 //first connect db then connect or run the server
 app.use(express.json()); //using express middleware
 app.use(cookieParser()); //to view cookie we use this middleware
+const authRouter=require('./routes/auth');
+const profileRouter=require('./routes/profile');
+const requestRouter=require('./routes/request');
 
 
-app.post("/signup",async(req,res)=>{
-//console.log(req.body);
-//get all the data from the database
+// //login api
+// app.post("/login",async(req,res)=>{
+//   try{
+// //validate email and password is present or not
+// const {email,password}=req.body;
+// const user=await userModel.findOne({email:email});
 
-try{
-  //validation for data
-
-  validateSignUpData(req);
-
-//hash the password
-const {password,firstName,lastName,email}=req.body;
-const hashedPassword=await bcrypt.hash(password,10);
-console.log(hashedPassword);
-
-
-
-
-
-
-
-
-
-
-//create a new instance of user model
-//const user=new userModel(req.body); //it is a way what should be included in database when signing up 
-const user=new userModel({
-  firstName,
-  lastName,
-  email,
-  password: hashedPassword,
-});
-
-
-
-
-
-
-//validate the user data
+// console.log(user);
+// if(!user){
+//   throw new Error("Invalid credentials");
+// }
+// //const isPassordValid=await bcrypt.compare(password,user.password);
+// const isPassordValid=await user.validatePassword(password);
+// console.log(isPassordValid);
+// if(isPassordValid){
+//  //provide a jwt token to the user
+//  // const token=jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"1d"});
+//  const token=await user.getJWT();
+//  //send back to user
+//  res.cookie("token",token,{expires: new Date(Date.now() + 24 * 60 * 60 * 1000), httpOnly: true });
+//  console.log(token);
+//  res.send("User logged in sucessfully!!");
+// }
+// else{
+//   throw new Error("Invalid Credentials!!");
+// }
+//   }
+//   catch(e){
+//     res.status(400).send("ERR"+e.message);
+//   }
+// });
 
 
 
 
-  await user.save();
-  res.send("User created successfully into database");
-}
-catch(e){
-res.status(400).send("ERROR:"+e.message);
-}
-});
-
-//login api
-app.post("/login",async(req,res)=>{
-  try{
-//validate email and password is present or not
-const {email,password}=req.body;
-const user=await userModel.findOne({email:email});
-
-console.log(user);
-if(!user){
-  throw new Error("Invalid credentials");
-}
-//const isPassordValid=await bcrypt.compare(password,user.password);
-const isPassordValid=await user.validatePassword(password);
-console.log(isPassordValid);
-if(isPassordValid){
- //provide a jwt token to the user
- // const token=jwt.sign({_id:user._id},"personalProject123##",{expiresIn:"1d"});
- const token=await user.getJWT();
- //send back to user
- res.cookie("token",token,{expires: new Date(Date.now() + 24 * 60 * 60 * 1000), httpOnly: true });
- console.log(token);
- res.send("User logged in sucessfully!!");
-}
-else{
-  throw new Error("Invalid Credentials!!");
-}
-  }
-  catch(e){
-    res.status(400).send("ERR"+e.message);
-  }
-});
-
-
-//api to view profile
-app.get("/profile",userAuth,async(req,res)=>{
-  try{
-    const user=req.user;
-    res.send(user);
-  }
-  catch(e){
-    res.status(400).send("Invalid user"+e.message);
-  }
-});
-
-app.post("/sendConnectionRequest",userAuth,async(req,res)=>{ //this middleware first checks if we logged in (token is valid then only this works);
-  console.log("connection req sending");
+// app.post("/sendConnectionRequest",userAuth,async(req,res)=>{ //this middleware first checks if we logged in (token is valid then only this works);
+//   console.log("connection req sending");
   
-  res.send(req.user.firstName + "Send the connection request");
-});
-
-
+//   res.send(req.user.firstName + "Send the connection request");
+// });
 
 
 app.get("/user",async (req,res)=>{
@@ -176,11 +114,6 @@ app.get("/user",async (req,res)=>{
 //     res.status(404).send("Something went wrong!!"+e.message);
 //   }
 // });
-
-
-
-
-
 
 //first connect db then connect or run the server
 connectDB().then(()=>{
