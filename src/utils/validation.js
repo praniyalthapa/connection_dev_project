@@ -13,7 +13,17 @@ else if(!validator.isStrongPassword(password)){
 };
  
 
+
 };
+
+
+const validateProfileEditData=(req)=>{
+ const allowedEditMethods=["firstName","email","photoUrl","gender","lastName","skills","about"];
+ const isAllowed=Object.keys(req.body).every(field=>allowedEditMethods.includes(field));
+ return isAllowed; //is returns boolean value
+}
 module.exports={
-    validateSignUpData
+    validateSignUpData,
+    validateProfileEditData
+   
 }

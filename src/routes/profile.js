@@ -1,9 +1,10 @@
 const express=require('express');
 const router=express.Router();
 const {userAuth}=require('../middleware/auth');
-
+const { validateProfileEditData } = require('../utils/validation');
+//const {validateProfileEditData}=require('../utils/validation');
 //api to view profile
-router.get("/profile",userAuth,async(req,res)=>{
+router.get("/profile/view",userAuth,async(req,res)=>{
     try{
       const user=req.user;
       res.send(user);
@@ -12,7 +13,19 @@ router.get("/profile",userAuth,async(req,res)=>{
       res.status(400).send("Invalid user"+e.message);
     }
   });
+router.patch("/profile/edit",userAuth,async(req,res)=>{
+   try{
+    if(!validateProfileEditData){
+      throw new Error("Invalid things are not able to edit");
+    }
+     
+   }
+   catch(e){
+    res.status(400).send("Error: "+e.message);
+   }
 
+
+});
   
 router.get("/user",async (req,res)=>{
     //const email=req.body.email;  //taking email from the req of postman
