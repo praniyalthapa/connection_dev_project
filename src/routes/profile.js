@@ -18,7 +18,12 @@ router.patch("/profile/edit",userAuth,async(req,res)=>{
     if(!validateProfileEditData){
       throw new Error("Invalid things are not able to edit");
     }
-     
+   
+    const loggedInUser=req.user;
+    Object.keys(req.body).forEach(key => (loggedInUser[key]==req.body[key]));
+    await loggedInUser.save(); //save the data in db
+    console.log(loggedInUser);
+    res.send(`${loggedInUser.firstName} profile updated successfully`);
    }
    catch(e){
     res.status(400).send("Error: "+e.message);
